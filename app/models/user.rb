@@ -30,4 +30,20 @@ class User < ApplicationRecord
   def feed_microposts
     Micropost.where(user_id: self.following_ids + [self.id])
   end
+  
+  has_many :likes
+  has_many :favorites, through: :likes, source: :micropost
+  
+  def favorite(micropost)
+    self.likes.find_or_create_by(micropost_id: micropost.id)
+  end 
+  
+  def unfavorite(micropost)
+    like = self.likes.find_by(micropost_id: micropost.id)
+    like.destroy if like
+  end 
+  
+  def favoriting?(micropost)
+    self.favorites.include?(micropost)
+  end 
 end
